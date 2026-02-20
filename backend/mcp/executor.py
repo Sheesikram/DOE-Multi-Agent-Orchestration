@@ -4,9 +4,11 @@ from config import OPENAI_API_KEY, MODEL
 from mcp.tools import TOOLS
 from mcp.router import execute_tool
 
-client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-
-async def run_with_tools(messages):
+async def run_with_tools(messages, openai_key: str = None, tavily_key: str = None):
+    # Use provided key or fall back to config
+    api_key = openai_key or OPENAI_API_KEY
+    client = AsyncOpenAI(api_key=api_key)
+    
     response = await client.chat.completions.create(
         model=MODEL,
         messages=messages,
@@ -31,7 +33,8 @@ async def run_with_tools(messages):
     tool_name = tool_call.function.name
     arguments = json.loads(tool_call.function.arguments)
 
-    tool_result = await execute_tool(tool_name, arguments)
+    # Pass tavily_key to tool execution
+    tool_result = await execute_tool(tool_name, arguments, tavily_key=tavily_key)
 
     messages.append({
         "role": "tool",
@@ -45,4 +48,3 @@ async def run_with_tools(messages):
     )
 
     return second_response.choices[0].message.content
-

@@ -1,11 +1,14 @@
 import httpx
 from config import TAVILY_API_KEY
 
-async def search_web(query: str):
+async def search_web(query: str, tavily_key: str = None):
+    # Use provided key or fall back to config
+    api_key = tavily_key or TAVILY_API_KEY
+    
     url = "https://api.tavily.com/search"
 
     payload = {
-        "api_key": TAVILY_API_KEY,
+        "api_key": api_key,
         "query": query,
         "search_depth": "advanced",
         "include_answer": True,

@@ -15,7 +15,8 @@ Requirements:
 
     state["plan"] = await run_llm(
         "You are an expert content strategist.",
-        prompt
+        prompt,
+        openai_key=state.get("openai_key")
     )
 
     return state

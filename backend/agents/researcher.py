@@ -1,5 +1,5 @@
 from agents.base import run_llm
-from mcp.executor import run_with_tools  # <-- add this line
+from mcp.executor import run_with_tools
 
 async def researcher_node(state):
     messages = [
@@ -36,5 +36,9 @@ Provide structured research notes.
         }
     ]
 
-    state["research"] = await run_with_tools(messages)
+    state["research"] = await run_with_tools(
+        messages,
+        openai_key=state.get("openai_key"),
+        tavily_key=state.get("tavily_key")
+    )
     return state

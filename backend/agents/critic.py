@@ -27,42 +27,13 @@ Draft:
 {state.get("draft")}
 """
 
-    raw = await run_llm("You are a strict reviewer.", prompt)
+    raw = await run_llm(
+        "You are a strict reviewer.",
+        prompt,
+        openai_key=state.get("openai_key")
+    )
 
     state["critique"] = extract_json(raw)
     state["approved"] = state["critique"]["approved"]
-
-    return state
-
-
-
-
-async def writer_node(state):
-    feedback = ""
-    
-    if state.get("critique") and not state.get("approved"):
-        feedback = f"""
-Improve the draft based on this feedback:
-{state['critique']['feedback']}
-"""
-
-    prompt = f"""
-Write a professional, detailed blog based on:
-
-Outline:
-{state['plan']}
-
-Research:
-{state['research']}
-
-{feedback}
-
-Ensure improvements are applied.
-"""
-
-    state["draft"] = await run_llm(
-        "You are a professional technology writer.",
-        prompt
-    )
 
     return state

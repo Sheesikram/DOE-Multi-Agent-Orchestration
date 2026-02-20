@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { sendMessage } from "./api";
 import MessageBubble from "./components/MessageBubble";
 import ChatInput from "./components/ChatInput";
+import ApiKeySettings from "./components/ApiKeySettings";
 import type { Message } from "./types/message";
 
 interface ExecutionStep {
@@ -10,20 +11,34 @@ interface ExecutionStep {
   status: "started" | "completed";
 }
 
+interface ApiKeys {
+  openaiKey: string;
+  tavilyKey: string;
+}
+
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [trace, setTrace] = useState<ExecutionStep[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKeys>({ openaiKey: "", tavilyKey: "" });
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const handleSend = async (text: string) => {
+    if (!apiKeys.openaiKey || !apiKeys.tavilyKey) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "⚠️ Please set your API keys first." },
+      ]);
+      return;
+    }
+
     const userMessage: Message = { role: "user", content: text };
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
     setTrace([]); // reset trace for new request
 
     try {
-      const data = await sendMessage(text);
+      const data = await sendMessage(text, apiKeys);
 
       setTrace(data.trace || []);
 
@@ -51,6 +66,9 @@ function App() {
     <div style={styles.app}>
       <div style={styles.container}>
         <h1 style={styles.title}>AI Research Engine</h1>
+
+        {/* 🔑 API Key Settings */}
+        <ApiKeySettings onKeysChange={setApiKeys} />
 
         {/* 🔥 Execution Panel */}
         {trace.length > 0 && (

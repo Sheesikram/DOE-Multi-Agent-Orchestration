@@ -16,7 +16,7 @@ AGENT_MAP = {
 }
 
 
-async def execute_directive(directive, user_input):
+async def execute_directive(directive, user_input,openai_key=None, tavily_key=None):
     state = {
         "user_input": user_input,
         "plan": None,
@@ -24,6 +24,8 @@ async def execute_directive(directive, user_input):
         "draft": None,
         "critique": None,
         "approved": False,
+        "openai_key": openai_key,
+        "tavily_key": tavily_key,
         "final": None,
         "current_agent": None,
         "trace": [],

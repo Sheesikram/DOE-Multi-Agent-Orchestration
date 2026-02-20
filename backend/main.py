@@ -20,10 +20,13 @@ app.add_middleware(
 async def chat(data: dict):
     try:
         user_input = data.get("message")
+        openai_key = data.get("openai_key")
+        tavily_key = data.get("tavily_key")
 
         if not user_input:
             raise HTTPException(status_code=400, detail="Message is required")
 
+        # Inject keys into state
         directive = Directive(
             steps=[
                 DirectiveStep(id=1, agent="planner"),
@@ -38,18 +41,15 @@ async def chat(data: dict):
             )
         )
 
-        final_state = await execute_directive(directive, user_input)
+        final_state = await execute_directive(
+            directive,
+            user_input,
+            openai_key=openai_key,
+            tavily_key=tavily_key,
+        )
 
         return {
-            "plan": final_state.get("plan"),
-            "research": final_state.get("research"),
             "draft": final_state.get("draft"),
-            "critique": final_state.get("critique"),
-            "approved": final_state.get("approved"),
-            "final": final_state.get("final"),
-
-            # 🔥 NEW — Execution metadata
-            "current_agent": final_state.get("current_agent"),
             "trace": final_state.get("trace", []),
         }
 

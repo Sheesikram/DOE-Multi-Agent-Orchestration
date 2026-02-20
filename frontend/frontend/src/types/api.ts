@@ -1,5 +1,7 @@
 export interface ChatRequest {
   message: string;
+  openai_key?: string;
+  tavily_key?: string;
 }
 
 export interface ExecutionStep {
