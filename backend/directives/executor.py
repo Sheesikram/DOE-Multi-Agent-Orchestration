@@ -15,6 +15,7 @@ AGENT_MAP = {
     "finalizer": finalizer_node,
 }
 
+
 async def execute_directive(directive, user_input):
     state = {
         "user_input": user_input,
@@ -23,25 +24,52 @@ async def execute_directive(directive, user_input):
         "draft": None,
         "critique": None,
         "approved": False,
-        "final": None
+        "final": None,
+        "current_agent": None,
+        "trace": [],
     }
 
     execution_id = create_execution(state)
     iteration = 0
 
     while iteration < directive.rules.max_iterations:
-        for step in directive.steps:
-            agent_fn = AGENT_MAP.get(step.agent)
-            if not agent_fn:
-                raise Exception(f"Unknown agent: {step.agent}")
 
-            state = await agent_fn(state)
+        for step in directive.steps:
+            agent_name = step.agent
+            agent_fn = AGENT_MAP.get(agent_name)
+
+            if not agent_fn:
+                raise Exception(f"Unknown agent: {agent_name}")
+
+            # 🔥 Mark agent as started
+            state["current_agent"] = agent_name
+            state["trace"].append({
+                "agent": agent_name,
+                "iteration": iteration,
+                "status": "started"
+            })
+
             update_execution(execution_id, state)
 
+            # Execute agent
+            state = await agent_fn(state)
+
+            # 🔥 Mark agent as completed
+            state["trace"][-1]["status"] = "completed"
+
+            update_execution(execution_id, state)
+
+        # Retry logic
         if directive.rules.retry_if_not_approved and not state["approved"]:
             iteration += 1
             continue
 
         break
 
+    # Clear current agent after execution
+    state["current_agent"] = None
+
+    update_execution(execution_id, state)
+
     return state
+
