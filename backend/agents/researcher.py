@@ -15,6 +15,11 @@ Use the search_web tool whenever:
 - Statistics or recent data is needed
 - Factual verification is necessary
 
+
+You may call the search_web tool only once.
+Combine all necessary information into a single comprehensive query.
+Be strategic and concise.
+
 Do not hallucinate facts.
 Prefer using the tool when uncertain.
 """

@@ -16,34 +16,33 @@ async def run_with_tools(messages):
 
     message = response.choices[0].message
 
-    # If no tools were called
     if not message.tool_calls:
         return message.content
 
-    # Append the assistant message ONCE
+    # 🔒 LIMIT TOOL CALLS TO 1
+    tool_call = message.tool_calls[0]
+
     messages.append({
         "role": "assistant",
         "content": message.content,
-        "tool_calls": message.tool_calls
+        "tool_calls": [tool_call]
     })
 
-    # Execute each tool call
-    for tool_call in message.tool_calls:
-        tool_name = tool_call.function.name
-        arguments = json.loads(tool_call.function.arguments)
+    tool_name = tool_call.function.name
+    arguments = json.loads(tool_call.function.arguments)
 
-        tool_result = await execute_tool(tool_name, arguments)
+    tool_result = await execute_tool(tool_name, arguments)
 
-        messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "content": tool_result
-        })
+    messages.append({
+        "role": "tool",
+        "tool_call_id": tool_call.id,
+        "content": tool_result
+    })
 
-    # Call model again after ALL tool responses
     second_response = await client.chat.completions.create(
         model=MODEL,
         messages=messages
     )
 
     return second_response.choices[0].message.content
+
