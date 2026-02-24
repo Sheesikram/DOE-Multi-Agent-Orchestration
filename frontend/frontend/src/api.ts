@@ -1,11 +1,14 @@
 import type { ChatRequest, ChatResponse } from "./types/api";
 
-const API_URL = "http://127.0.0.1:8000/chat";
-
 interface ApiKeys {
   openaiKey?: string;
   tavilyKey?: string;
 }
+
+// Uses environment variable in production,
+// falls back to localhost in development
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://doe-multi-agent-orchestration.onrender.com";
 
 export async function sendMessage(
   message: string,
@@ -33,6 +36,5 @@ export async function sendMessage(
   }
 
   const data: ChatResponse = await response.json();
-
   return data;
 }
