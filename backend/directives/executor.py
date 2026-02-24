@@ -1,5 +1,4 @@
 """Directive executor implementation."""
-
 from agents.planner import planner_node
 from agents.researcher import researcher_node
 from agents.critic import critic_node

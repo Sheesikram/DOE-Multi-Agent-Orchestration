@@ -1,10 +1,16 @@
 from tools.search import search_web
+from tools.scrape import scrape_page
 
-async def execute_tool(tool_name: str, arguments: dict, tavily_key: str = None):
-    print(f"\n🔥 TOOL CALLED: {tool_name}")
-    print(f"Arguments: {arguments}\n")
-
+async def execute_tool(
+    tool_name: str,
+    arguments: dict,
+    openai_key: str | None = None,
+    tavily_key: str | None = None
+):
     if tool_name == "search_web":
-        return await search_web(arguments["query"], tavily_key=tavily_key)
+        return await search_web(arguments["query"])
 
-    raise ValueError(f"Unknown tool: {tool_name}")
+    if tool_name == "scrape_page":
+        return await scrape_page(arguments["url"])
+
+    raise Exception(f"Unknown tool: {tool_name}")

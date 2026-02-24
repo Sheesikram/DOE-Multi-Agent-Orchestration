@@ -8,8 +8,8 @@ interface ApiKeys {
 // Uses environment variable in production,
 // falls back to localhost in development
 const API_URL =
-  import.meta.env.VITE_API_URL || "https://doe-multi-agent-orchestration.onrender.com";
-
+  // "http://127.0.0.1:8000/chat";
+   import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/chat" ;
 export async function sendMessage(
   message: string,
   keys?: ApiKeys
